@@ -1,16 +1,22 @@
+import lombok.Getter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.controllers.UserController;
 import ru.yandex.practicum.exceptions.ValidationException;
 import ru.yandex.practicum.model.User;
+import ru.yandex.practicum.service.UserService;
+import ru.yandex.practicum.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
-import java.time.Period;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Getter
 public class UserControllerTest {
     private User user = new User();
+
+    InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
+    UserService userService = new UserService();
 
     @BeforeEach
     void createUser() {
@@ -25,7 +31,7 @@ public class UserControllerTest {
     void shouldNotCreateUserWhileEmailIsBlank() {
         user.setEmail("");
 
-        UserController userController = new UserController();
+        UserController userController = new UserController(inMemoryUserStorage, userService);
         String message = null;
 
         try {
@@ -34,62 +40,14 @@ public class UserControllerTest {
             message = e.getMessage();
         }
 
-        assertEquals(message, "Не валидный адрес электронной почты.");
-    }
-
-    @Test
-    void shouldNotCreateUserWhileEmailNotContainsSymbol() {
-        user.setEmail("test");
-
-        UserController userController = new UserController();
-        String message = null;
-
-        try {
-            userController.create(user);
-        } catch (ValidationException e) {
-            message = e.getMessage();
-        }
-
-        assertEquals(message, "Не валидный адрес электронной почты.");
-    }
-
-    @Test
-    void shouldNotCreateUserWithSpacesInLogin() {
-        user.setLogin("Na me");
-
-        UserController userController = new UserController();
-        String message = null;
-
-        try {
-            userController.create(user);
-        } catch (ValidationException e) {
-            message = e.getMessage();
-        }
-
-        assertEquals(message, "Логин не может быть пустым и содержать пробелы.");
-    }
-
-    @Test
-    void shouldNotCreateUserWithEmptyLogin() {
-        user.setLogin("");
-
-        UserController userController = new UserController();
-        String message = null;
-
-        try {
-            userController.create(user);
-        } catch (ValidationException e) {
-            message = e.getMessage();
-        }
-
-        assertEquals(message, "Логин не может быть пустым и содержать пробелы.");
+        assertEquals(message, "Не валидный email.");
     }
 
     @Test
     void nameShouldEqualsLoginIfNameIsEmpty() {
         user.setName("");
 
-        UserController userController = new UserController();
+        UserController userController = new UserController(inMemoryUserStorage, userService);
 
         userController.create(user);
 
@@ -97,31 +55,14 @@ public class UserControllerTest {
     }
 
     @Test
-    void nameShouldCreateUserIfBirthdayAfterToday() {
-        // дата рождения больше сегодняшней на 1 день
-        user.setBirthday(LocalDate.now().plus(Period.ofDays(1)));
-
-        UserController userController = new UserController();
-        String message = null;
-
-        try {
-            userController.create(user);
-        } catch (ValidationException e) {
-            message = e.getMessage();
-        }
-
-        assertEquals(message, "Дата рождения не может быть в будущем.");
-    }
-
-    @Test
     void shouldCreateUserIfBirthdayIsTodayOrLess() {
         user.setBirthday(LocalDate.now());
 
-        UserController userController = new UserController();
+        UserController userController = new UserController(inMemoryUserStorage, userService);
 
         userController.create(user);
 
-        assertEquals(userController.getUsers().size(), 1);
+        assertEquals(inMemoryUserStorage.getUsers().size(), 1);
     }
 }
 
