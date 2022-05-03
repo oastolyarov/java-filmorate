@@ -1,20 +1,18 @@
 package ru.yandex.practicum.storage;
 
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.controllers.UserController;
 import ru.yandex.practicum.exceptions.UserIdNotValidException;
 import ru.yandex.practicum.exceptions.ValidationException;
 import ru.yandex.practicum.model.User;
 
 import java.util.*;
 
+@Slf4j
 @Component
 @Getter
 public class InMemoryUserStorage implements UserStorage {
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final Map<Long, User> users = new HashMap<>();
     private static long id = 1;
 
@@ -53,7 +51,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User UserById(Long userID) {
+    public User getUserById(Long userID) {
         if (userID < 0) {
             throw new UserIdNotValidException("ID пользователя не может быть отрицательным.");
         }
@@ -66,5 +64,10 @@ public class InMemoryUserStorage implements UserStorage {
             }
         }
         return null;
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        users.remove(getUserById(id));
     }
 }

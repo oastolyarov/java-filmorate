@@ -44,7 +44,7 @@ public class FilmController {
 
     @PutMapping("/films/{id}/like/{userId}")
     public void setLike(@PathVariable("id") long filmId, @PathVariable("userId") long userId) {
-        filmService.setLike(inMemoryUserStorage.UserById(userId), inMemoryFilmStorage.getFilmById(filmId));
+        filmService.setLike(inMemoryUserStorage.getUserById(userId), inMemoryFilmStorage.getFilmById(filmId));
     }
 
     @GetMapping("/films/popular")
@@ -59,6 +59,11 @@ public class FilmController {
 
     @DeleteMapping("/films/{id}/like/{userId}")
     public void deleteLike(@PathVariable("id") long filmId, @PathVariable("userId") Long userId) {
-        filmService.removeLike(inMemoryUserStorage.UserById(userId), inMemoryFilmStorage.getFilmById(filmId));
+        filmService.removeLike(inMemoryUserStorage.getUserById(userId), inMemoryFilmStorage.getFilmById(filmId));
+    }
+
+    @DeleteMapping("/films/{id}")
+    public void deleteFilm(@PathVariable long id) {
+        inMemoryFilmStorage.deleteFilm(id);
     }
 }

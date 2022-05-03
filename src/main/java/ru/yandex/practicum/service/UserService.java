@@ -6,6 +6,7 @@ import ru.yandex.practicum.model.User;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -23,6 +24,11 @@ public class UserService {
     }
 
     public List<Long> commonListOfFriends(User user1, User user2) {
+        Set setMutualFriends = user1.getFriends();
+        setMutualFriends.retainAll(user2.getFriends());
+        return List.copyOf(setMutualFriends);
+    /*
+
         List<Long> commonFriendsId = new ArrayList<>();
 
         List<Long> list1 = List.copyOf(user1.getFriends());
@@ -35,6 +41,6 @@ public class UserService {
                     break;
                 }
             }
-        } return commonFriendsId;
+        } return commonFriendsId;*/
     }
 }

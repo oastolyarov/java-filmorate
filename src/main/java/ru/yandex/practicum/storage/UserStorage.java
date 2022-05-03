@@ -12,7 +12,7 @@ public interface UserStorage {
 
     public User change(User user);
 
-    public User UserById(Long userID);
+    public User getUserById(Long userID);
 
-
+    public void deleteUser(Long id);
 }

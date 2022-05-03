@@ -10,6 +10,7 @@ import ru.yandex.practicum.storage.InMemoryUserStorage;
 
 import javax.validation.Valid;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Data
 @RestController
@@ -42,8 +43,8 @@ public class UserController {
 
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable("id") Long userID, @PathVariable("friendId") Long friendID) {
-        User user = inMemoryUserStorage.UserById(userID);
-        User friend = inMemoryUserStorage.UserById(friendID);
+        User user = inMemoryUserStorage.getUserById(userID);
+        User friend = inMemoryUserStorage.getUserById(friendID);
 
         if (user == null || friend == null) {
             Long noId = user == null ? userID : friendID; // проверка чей именно id отсутствует
@@ -56,27 +57,21 @@ public class UserController {
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Long id) {
-        return inMemoryUserStorage.UserById(id);
+        return inMemoryUserStorage.getUserById(id);
     }
 
     @GetMapping("/{id}/friends")
     public List<User> getFriendList(@PathVariable Long id) {
-        User user = inMemoryUserStorage.UserById(id);
-
-        List<Long> listId = List.copyOf(userService.getFriendList(user));
-        List<User> friendList = new ArrayList<>();
-
-        for (int i = 0; i < listId.size(); i++) {
-            friendList.add(inMemoryUserStorage.UserById(listId.get(i)));
-        }
-
-        return friendList;
+        return inMemoryUserStorage.getUserById(id).getFriends()
+                .stream()
+                .map(idFriend -> inMemoryUserStorage.getUserById(idFriend))
+                .collect(Collectors.toList());
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable("id") Long userID, @PathVariable("friendId") Long friendID) {
-        User user = inMemoryUserStorage.UserById(userID);
-        User friend = inMemoryUserStorage.UserById(friendID);
+        User user = inMemoryUserStorage.getUserById(userID);
+        User friend = inMemoryUserStorage.getUserById(friendID);
 
         if (user == null || friend == null) {
             Long noId = user == null ? userID : friendID; // проверка чей именно id отсутствует
@@ -90,15 +85,20 @@ public class UserController {
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable("id") long userId, @PathVariable("otherId") long otherUserId) {
 
-        List<Long> idCommonFriend = userService.commonListOfFriends(inMemoryUserStorage.UserById(userId),
-                inMemoryUserStorage.UserById(otherUserId)); // получаю массив с id общих друзей
+        List<Long> idCommonFriend = userService.commonListOfFriends(inMemoryUserStorage.getUserById(userId),
+                inMemoryUserStorage.getUserById(otherUserId)); // получаю массив с id общих друзей
 
         List<User> commonFriends = new ArrayList<>();
 
         for (Long l : idCommonFriend) { // ищу по этому id пользователя
-            commonFriends.add(inMemoryUserStorage.UserById(l));
+            commonFriends.add(inMemoryUserStorage.getUserById(l));
         }
 
         return commonFriends;
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable long id) {
+        inMemoryUserStorage.deleteUser(id);
     }
 }

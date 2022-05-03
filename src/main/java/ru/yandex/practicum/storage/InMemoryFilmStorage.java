@@ -1,10 +1,8 @@
 package ru.yandex.practicum.storage;
 
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.controllers.FilmController;
 import ru.yandex.practicum.exceptions.FilmNotExistsException;
 import ru.yandex.practicum.exceptions.ValidationException;
 import ru.yandex.practicum.model.Film;
@@ -15,10 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Getter
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-    private static final Logger log = LoggerFactory.getLogger(FilmController.class);
     private final List<Film> films = new ArrayList<>();
     private static int id = 1;
 
@@ -81,5 +79,10 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
 
         return film;
+    }
+
+    @Override
+    public void deleteFilm(Long id) {
+        films.remove(getFilmById(id));
     }
 }

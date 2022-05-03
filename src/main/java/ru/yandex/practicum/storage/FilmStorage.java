@@ -13,4 +13,6 @@ public interface FilmStorage {
     public void edit(Film film);
 
     public Film getFilmById(Long id);
+
+    public void deleteFilm(Long id);
 }
