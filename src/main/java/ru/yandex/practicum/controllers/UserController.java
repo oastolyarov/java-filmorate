@@ -1,55 +1,104 @@
 package ru.yandex.practicum.controllers;
 
 import lombok.Data;
-import org.springframework.validation.annotation.Validated;
-import ru.yandex.practicum.exceptions.ValidationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.yandex.practicum.exceptions.UserIdNotValidException;
 import ru.yandex.practicum.model.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.service.UserService;
+import ru.yandex.practicum.storage.InMemoryUserStorage;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Data
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
-    private final Map<String, User> users = new HashMap<>();
-    private int id = 1;
+
+    InMemoryUserStorage inMemoryUserStorage;
+    UserService userService;
+
+    @Autowired
+    public UserController(InMemoryUserStorage inMemoryUserStorage, UserService userService) {
+        this.inMemoryUserStorage = inMemoryUserStorage;
+        this.userService = userService;
+    }
 
     @GetMapping
     public Collection<User> findAll() {
-        return users.values();
+        return inMemoryUserStorage.findAll();
     }
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-            log.info("Имя пользователя не указано, вместо имени будет использован логин.");
-        }
-
-        user.setId(id);
-        id++;
-        users.put(user.getEmail(), user);
-        log.info("Создан пользователь {}", user, toString());
-        return user;
+        return inMemoryUserStorage.create(user);
     }
 
     @PutMapping
     public User change(@Valid @RequestBody User user) {
-
-        if (user.getName() == null || !user.getEmail().contains("@") || user.getEmail().isBlank()) {
-            throw new ValidationException("Адрес электронной почты не может быть пустым.");
-        }
-        users.put(user.getEmail(), user);
-        log.info("Пользователь " + user.getEmail() + " изменен.");
-
-        return user;
+        return inMemoryUserStorage.change(user);
     }
 
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable("id") Long userID, @PathVariable("friendId") Long friendID) {
+        User user = inMemoryUserStorage.getUserById(userID);
+        User friend = inMemoryUserStorage.getUserById(friendID);
+
+        if (user == null || friend == null) {
+            Long noId = user == null ? userID : friendID; // проверка чей именно id отсутствует
+            throw new UserIdNotValidException(String.format("Пользователь с id %d не существует.", userID));
+        }
+
+        userService.addFriend(user, friendID); // добавляет пользователю друга
+        userService.addFriend(friend, userID); // добавляет этому другу в друзья пользователя
+    }
+
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable Long id) {
+        return inMemoryUserStorage.getUserById(id);
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getFriendList(@PathVariable Long id) {
+        return inMemoryUserStorage.getUserById(id).getFriends()
+                .stream()
+                .map(idFriend -> inMemoryUserStorage.getUserById(idFriend))
+                .collect(Collectors.toList());
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void deleteFriend(@PathVariable("id") Long userID, @PathVariable("friendId") Long friendID) {
+        User user = inMemoryUserStorage.getUserById(userID);
+        User friend = inMemoryUserStorage.getUserById(friendID);
+
+        if (user == null || friend == null) {
+            Long noId = user == null ? userID : friendID; // проверка чей именно id отсутствует
+            throw new UserIdNotValidException(String.format("Пользователь с id %d не существует.", userID));
+        }
+
+        userService.deleteFriend(user, friendID); // удаляет у пользователя друга
+        userService.deleteFriend(friend, userID); // удаляет у друга пользователя
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable("id") long userId, @PathVariable("otherId") long otherUserId) {
+
+        List<Long> idCommonFriend = userService.commonListOfFriends(inMemoryUserStorage.getUserById(userId),
+                inMemoryUserStorage.getUserById(otherUserId)); // получаю массив с id общих друзей
+
+        List<User> commonFriends = new ArrayList<>();
+
+        for (Long l : idCommonFriend) { // ищу по этому id пользователя
+            commonFriends.add(inMemoryUserStorage.getUserById(l));
+        }
+
+        return commonFriends;
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable long id) {
+        inMemoryUserStorage.deleteUser(id);
+    }
 }

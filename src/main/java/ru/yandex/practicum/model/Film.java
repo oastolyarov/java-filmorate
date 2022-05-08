@@ -5,10 +5,13 @@ import lombok.Data;
 import javax.validation.constraints.*;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class Film {
-    private int id;
+    private Set<String> likes = new HashSet<>();
+    private long id;
     @NotBlank
     private String name;
     @Size(max = 200)
