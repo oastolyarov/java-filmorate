@@ -33,13 +33,15 @@ public class FilmController {
     }
 
     @PostMapping(value = "/films")
-    public void create(@Valid @RequestBody Film film) {
+    public Film create(@Valid @RequestBody Film film) {
         inMemoryFilmStorage.create(film);
+        return film;
     }
 
     @PutMapping(value = "/films")
-    public void edit(@RequestBody Film film) {
+    public Film edit(@RequestBody Film film) {
         inMemoryFilmStorage.edit(film);
+        return film;
     }
 
     @PutMapping("/films/{id}/like/{userId}")

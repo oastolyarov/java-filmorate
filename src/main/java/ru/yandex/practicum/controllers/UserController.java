@@ -84,9 +84,10 @@ public class UserController {
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable("id") long userId, @PathVariable("otherId") long otherUserId) {
+        User user1 = inMemoryUserStorage.getUserById(userId);
+        User user2 = inMemoryUserStorage.getUserById(otherUserId);
 
-        List<Long> idCommonFriend = userService.commonListOfFriends(inMemoryUserStorage.getUserById(userId),
-                inMemoryUserStorage.getUserById(otherUserId)); // получаю массив с id общих друзей
+        List<Long> idCommonFriend = userService.commonListOfFriends(user1, user2); // получаю массив с id общих друзей
 
         List<User> commonFriends = new ArrayList<>();
 

@@ -24,7 +24,7 @@ public class FilmControllerTest {
     @BeforeEach
     void newFilm() {
         film = new Film();
-        film.setDuration(Duration.ofMinutes(90));
+        film.setDuration(90);
         film.setDescription("Описание фильма");
         film.setName("Название");
         film.setReleaseDate(LocalDate.of(2020, 01, 01));
@@ -108,7 +108,7 @@ public class FilmControllerTest {
 
     @Test
     void shouldNotCreateFilmWhileDurationLess0() {
-        film.setDuration(Duration.ofDays(-5));
+        film.setDuration(-5);
 
         FilmController filmController = new FilmController(inMemoryFilmStorage, filmService, inMemoryUserStorage);
         String message = null;
@@ -124,7 +124,7 @@ public class FilmControllerTest {
 
     @Test
     void shouldCreateFilmIfDurationIs0() {
-        film.setDuration(Duration.ofDays(0));
+        film.setDuration(0);
 
         FilmController filmController = new FilmController(inMemoryFilmStorage, filmService, inMemoryUserStorage);
 

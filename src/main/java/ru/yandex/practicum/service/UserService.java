@@ -6,7 +6,6 @@ import ru.yandex.practicum.model.User;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -24,23 +23,26 @@ public class UserService {
     }
 
     public List<Long> commonListOfFriends(User user1, User user2) {
-        Set setMutualFriends = user1.getFriends();
-        setMutualFriends.retainAll(user2.getFriends());
-        return List.copyOf(setMutualFriends);
-    /*
+        Set<Long> setMutualFriendsUser1 = user1.getFriends();
+        Set<Long> setMutualFriendsUser2 = user2.getFriends();
 
-        List<Long> commonFriendsId = new ArrayList<>();
+        /*
+        почему-то функция "retainAll" ломала мне всю логику и
+        очищала массив друзей, поэтому я использовал циклы
+        я оставлю этот кусочек, чтобы потом разобраться с этим
+        */
 
-        List<Long> list1 = List.copyOf(user1.getFriends());
-        List<Long> list2 = List.copyOf(user2.getFriends());
+        //setMutualFriendsUser1.retainAll(setMutualFriendsUser2);
 
-        for (Long userId : list1) {
-            for (Long id : list2) {
-                if (userId == id) {
-                    commonFriendsId.add(userId);
-                    break;
+        List<Long> mutualFriends = new ArrayList<>();
+
+        for (Long l : setMutualFriendsUser1) {
+            for (Long s : setMutualFriendsUser2) {
+                if (l == s) {
+                    mutualFriends.add(l);
                 }
             }
-        } return commonFriendsId;*/
+        }
+        return mutualFriends;
     }
 }
