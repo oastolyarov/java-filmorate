@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Data
 public class Film {
-    private Set<String> likes = new HashSet<>();
+    private Set<Long> likes = new HashSet<>();
     private long id;
     @NotBlank
     private String name;
@@ -18,5 +18,7 @@ public class Film {
     private String description;
     @NotNull
     private LocalDate releaseDate;
-    private Duration duration;
+    private int duration;
+    private Genre genre;
+    private Rating rate;
 }

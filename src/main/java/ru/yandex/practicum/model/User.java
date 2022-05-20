@@ -1,9 +1,7 @@
 package ru.yandex.practicum.model;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -24,4 +22,5 @@ public class User {
     private String name;
     @PastOrPresent
     private LocalDate birthday;
+    private FriendshipStatus friendshipStatus;
 }

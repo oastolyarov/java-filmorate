@@ -44,6 +44,10 @@ public class InMemoryUserStorage implements UserStorage {
         if (user.getName() == null || !user.getEmail().contains("@") || user.getEmail().isBlank()) {
             throw new ValidationException("Адрес электронной почты не может быть пустым.");
         }
+
+        if (user.getId() <= 0) {
+            throw new UserIdNotValidException("Id пользователя не может быть отрицательным или равным нулю.");
+        }
         users.put(user.getId(), user);
         log.info("Пользователь " + user.getEmail() + " изменен.");
 
