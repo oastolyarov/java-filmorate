@@ -1,11 +1,11 @@
 import lombok.Getter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.controllers.UserController;
-import ru.yandex.practicum.exceptions.ValidationException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import ru.yandex.practicum.dao.UserDbStorage;
 import ru.yandex.practicum.model.User;
-import ru.yandex.practicum.service.UserService;
 import ru.yandex.practicum.storage.InMemoryUserStorage;
+import ru.yandex.practicum.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -17,9 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class UserServiceTest {
     private User user = new User();
     private User friend = new User();
+    private JdbcTemplate jdbcTemplate;
 
     InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
-    UserService userService = new UserService();
+    UserDbStorage userdbStorage = new UserDbStorage(jdbcTemplate);
 
     @BeforeEach
     void createUser() {
@@ -41,7 +42,7 @@ public class UserServiceTest {
         inMemoryUserStorage.getUsers().put(user.getId(), user);
         inMemoryUserStorage.getUsers().put(user.getId(), friend);
 
-        userService.addFriend(user, friend.getId());
+        userdbStorage.addFriend(user.getId(), friend.getId());
 
         assertEquals(2L, user.getFriends().stream().collect(Collectors.toList()).get(0));
     }
@@ -51,7 +52,7 @@ public class UserServiceTest {
         inMemoryUserStorage.getUsers().put(user.getId(), user);
         inMemoryUserStorage.getUsers().put(user.getId(), friend);
 
-        userService.addFriend(user, friend.getId());
+        userdbStorage.addFriend(user.getId(), friend.getId());
 
         List<Long> friendsList = List.copyOf(user.getFriends());
 
@@ -63,9 +64,9 @@ public class UserServiceTest {
         inMemoryUserStorage.getUsers().put(user.getId(), user);
         inMemoryUserStorage.getUsers().put(user.getId(), friend);
 
-        userService.addFriend(user, friend.getId());
+        userdbStorage.addFriend(user.getId(), friend.getId());
 
-        userService.deleteFriend(user, friend.getId());
+        userdbStorage.deleteFriend(user.getId(), friend.getId());
 
         assertEquals(0, user.getFriends().size());
     }

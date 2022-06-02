@@ -1,14 +1,16 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.controllers.FilmController;
+import ru.yandex.practicum.dao.FilmDbStorage;
+import ru.yandex.practicum.dao.UserDbStorage;
 import ru.yandex.practicum.exceptions.ValidationException;
 import ru.yandex.practicum.model.Film;
-import ru.yandex.practicum.service.FilmService;
+import ru.yandex.practicum.storage.FilmStorage;
 import ru.yandex.practicum.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.storage.InMemoryUserStorage;
+import ru.yandex.practicum.storage.UserStorage;
 
-import java.time.Duration;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,9 +19,10 @@ public class FilmControllerTest {
 
     private Film film = new Film();
 
-    InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
-    FilmService filmService = new FilmService();
-    InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
+    private JdbcTemplate jdbcTemplate;
+
+    UserDbStorage userDbStorage = new UserDbStorage(jdbcTemplate);
+    FilmStorage filmStorage = new FilmDbStorage(jdbcTemplate, userDbStorage);
 
     @BeforeEach
     void newFilm() {
@@ -34,7 +37,7 @@ public class FilmControllerTest {
     void shouldNotCreateFilmIfNameIsEmpty() {
         film.setName("");
 
-        FilmController filmController = new FilmController(inMemoryFilmStorage, filmService, inMemoryUserStorage);
+        FilmController filmController = new FilmController(filmStorage, userDbStorage);
         String message = null;
 
         try {
@@ -53,7 +56,7 @@ public class FilmControllerTest {
                 "123456789123456789123456789123456789123456789123456789123456789123456789" +
                 "123456789123456789123456789123456789123456789123456789123456789123");
 
-        FilmController filmController = new FilmController(inMemoryFilmStorage, filmService, inMemoryUserStorage);
+        FilmController filmController = new FilmController(filmStorage, userDbStorage);
         String message = null;
 
         try {
@@ -72,18 +75,18 @@ public class FilmControllerTest {
                 "123456789123456789123456789123456789123456789123456789123456789123456789" +
                 "12345678912345678912345678912345678912345678912345678912345678912");
 
-        FilmController filmController = new FilmController(inMemoryFilmStorage, filmService, inMemoryUserStorage);
+        FilmController filmController = new FilmController(filmStorage, userDbStorage);
 
         filmController.create(film);
 
-        assertEquals(inMemoryFilmStorage.getFilms().size(), 1);
+        assertEquals(filmStorage.findAll().size(), 1);
     }
 
     @Test
     void shouldNotCreateFilmWhileDateIsTooOld() {
         film.setReleaseDate(LocalDate.of(1800, 01, 01));
 
-        FilmController filmController = new FilmController(inMemoryFilmStorage, filmService, inMemoryUserStorage);
+        FilmController filmController = new FilmController(filmStorage, userDbStorage);
         String message = null;
 
         try {
@@ -99,18 +102,18 @@ public class FilmControllerTest {
     void shouldCreateFilmIfDateIs28_12_1895() {
         film.setReleaseDate(LocalDate.of(1895, 12, 28));
 
-        FilmController filmController = new FilmController(inMemoryFilmStorage, filmService, inMemoryUserStorage);
+        FilmController filmController = new FilmController(filmStorage, userDbStorage);
 
         filmController.create(film);
 
-        assertEquals(inMemoryFilmStorage.getFilms().size(), 1);
+        assertEquals(filmStorage.findAll().size(), 1);
     }
 
     @Test
     void shouldNotCreateFilmWhileDurationLess0() {
         film.setDuration(-5);
 
-        FilmController filmController = new FilmController(inMemoryFilmStorage, filmService, inMemoryUserStorage);
+        FilmController filmController = new FilmController(filmStorage, userDbStorage);
         String message = null;
 
         try {
@@ -126,10 +129,10 @@ public class FilmControllerTest {
     void shouldCreateFilmIfDurationIs0() {
         film.setDuration(0);
 
-        FilmController filmController = new FilmController(inMemoryFilmStorage, filmService, inMemoryUserStorage);
+        FilmController filmController = new FilmController(filmStorage, userDbStorage);
 
         filmController.create(film);
 
-        assertEquals(inMemoryFilmStorage.getFilms().size(), 1);
+        assertEquals(filmStorage.findAll().size(), 1);
     }
 }

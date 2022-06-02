@@ -55,7 +55,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUserById(Long userID) {
+    public Optional<User> getUserById(Long userID) {
         if (userID < 0) {
             throw new UserIdNotValidException("ID пользователя не может быть отрицательным.");
         }
@@ -64,14 +64,32 @@ public class InMemoryUserStorage implements UserStorage {
         for (Long l : users.keySet()) {
             if(users.get(l).getId() == userID) {
                 user = users.get(l);
-                return user;
+                return Optional.of(user);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
     public void deleteUser(Long id) {
         users.remove(getUserById(id));
+    }
+
+    @Override
+    public void addFriend(Long userId, Long friendId) {
+    }
+
+    @Override
+    public List<User> getFriendList(Long id) {
+        return null;
+    }
+
+    @Override
+    public void deleteFriend(Long userId, Long friendId) {
+    }
+
+    @Override
+    public List<User> commonListOfFriends(Long userId, Long otherUserId) {
+        return null;
     }
 }

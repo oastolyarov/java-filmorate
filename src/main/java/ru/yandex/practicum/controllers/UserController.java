@@ -2,11 +2,11 @@ package ru.yandex.practicum.controllers;
 
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import ru.yandex.practicum.exceptions.UserIdNotValidException;
 import ru.yandex.practicum.model.User;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.service.UserService;
-import ru.yandex.practicum.storage.InMemoryUserStorage;
+import ru.yandex.practicum.storage.UserStorage;
 
 import javax.validation.Valid;
 import java.util.*;
@@ -17,89 +17,65 @@ import java.util.stream.Collectors;
 @RequestMapping("/users")
 public class UserController {
 
-    InMemoryUserStorage inMemoryUserStorage;
-    UserService userService;
+    UserStorage userStorage;
 
     @Autowired
-    public UserController(InMemoryUserStorage inMemoryUserStorage, UserService userService) {
-        this.inMemoryUserStorage = inMemoryUserStorage;
-        this.userService = userService;
+    public UserController(@Qualifier("UserDbStorage") UserStorage userStorage) {
+        this.userStorage = userStorage;
     }
 
     @GetMapping
     public Collection<User> findAll() {
-        return inMemoryUserStorage.findAll();
+        return userStorage.findAll();
     }
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        return inMemoryUserStorage.create(user);
+        return userStorage.create(user);
     }
 
     @PutMapping
     public User change(@Valid @RequestBody User user) {
-        return inMemoryUserStorage.change(user);
+        return userStorage.change(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable("id") Long userID, @PathVariable("friendId") Long friendID) {
-        User user = inMemoryUserStorage.getUserById(userID);
-        User friend = inMemoryUserStorage.getUserById(friendID);
+        User user = userStorage.getUserById(userID).get();
+        User friend = userStorage.getUserById(friendID).get();
 
         if (user == null || friend == null) {
             Long noId = user == null ? userID : friendID; // проверка чей именно id отсутствует
-            throw new UserIdNotValidException(String.format("Пользователь с id %d не существует.", userID));
+            throw new UserIdNotValidException(String.format("Пользователь с id %d не существует.", noId));
         }
 
-        userService.addFriend(user, friendID); // добавляет пользователю друга
-        userService.addFriend(friend, userID); // добавляет этому другу в друзья пользователя
+        userStorage.addFriend(userID, friendID); // добавляет пользователю друга
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id) {
-        return inMemoryUserStorage.getUserById(id);
+    public Optional<User> getUserById(@PathVariable Long id) {
+        return userStorage.getUserById(id);
     }
 
     @GetMapping("/{id}/friends")
     public List<User> getFriendList(@PathVariable Long id) {
-        return inMemoryUserStorage.getUserById(id).getFriends()
-                .stream()
-                .map(idFriend -> inMemoryUserStorage.getUserById(idFriend))
-                .collect(Collectors.toList());
+        return userStorage.getFriendList(id);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable("id") Long userID, @PathVariable("friendId") Long friendID) {
-        User user = inMemoryUserStorage.getUserById(userID);
-        User friend = inMemoryUserStorage.getUserById(friendID);
-
-        if (user == null || friend == null) {
-            Long noId = user == null ? userID : friendID; // проверка чей именно id отсутствует
-            throw new UserIdNotValidException(String.format("Пользователь с id %d не существует.", userID));
-        }
-
-        userService.deleteFriend(user, friendID); // удаляет у пользователя друга
-        userService.deleteFriend(friend, userID); // удаляет у друга пользователя
+        userStorage.deleteFriend(userID, friendID);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable("id") long userId, @PathVariable("otherId") long otherUserId) {
-        User user1 = inMemoryUserStorage.getUserById(userId);
-        User user2 = inMemoryUserStorage.getUserById(otherUserId);
-
-        List<Long> idCommonFriend = userService.commonListOfFriends(user1, user2); // получаю массив с id общих друзей
-
-        List<User> commonFriends = new ArrayList<>();
-
-        for (Long l : idCommonFriend) { // ищу по этому id пользователя
-            commonFriends.add(inMemoryUserStorage.getUserById(l));
-        }
+        List<User> commonFriends = userStorage.commonListOfFriends(userId, otherUserId); // получаю массив с id общих друзей
 
         return commonFriends;
     }
 
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable long id) {
-        inMemoryUserStorage.deleteUser(id);
+        userStorage.deleteUser(id);
     }
 }

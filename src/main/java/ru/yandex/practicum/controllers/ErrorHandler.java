@@ -24,7 +24,7 @@ public class ErrorHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Map<String, String> userNotValid (final MethodArgumentNotValidException e) {
-        return Map.of("error", "Данные пользователя не валидны. Проверьте дату рождения и корректность email.");
+        return Map.of("error", "Данные не валидны. Проверьте корректность указанных данных.");
     }
 
     @ExceptionHandler(ValidationException.class)

@@ -7,8 +7,8 @@ import ru.yandex.practicum.exceptions.FilmIdValidationException;
 import ru.yandex.practicum.exceptions.FilmNotExistsException;
 import ru.yandex.practicum.exceptions.ValidationException;
 import ru.yandex.practicum.model.Film;
+import ru.yandex.practicum.model.User;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void create(Film film) {
+    public Film create(Film film) {
         film.setId(id);
         filmValidate(film);
 
@@ -35,6 +35,8 @@ public class InMemoryFilmStorage implements FilmStorage {
         id++;
         films.add(film);
         log.info("Добавлен фильм {}", film.toString());
+
+        return film;
     }
 
     @Override
@@ -67,6 +69,21 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void deleteFilm(Long id) {
         films.remove(getFilmById(id));
+    }
+
+    @Override
+    public void setLike(Long userId, Long filmId) {
+
+    }
+
+    @Override
+    public List<Film> getPopularFilm(int count) {
+        return null;
+    }
+
+    @Override
+    public void removeLike(Long userId, Long filmId) {
+
     }
 
     public void filmValidate(Film film) {
