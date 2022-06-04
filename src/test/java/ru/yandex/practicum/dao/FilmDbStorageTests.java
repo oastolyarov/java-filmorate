@@ -46,6 +46,7 @@ public class FilmDbStorageTests {
 
         MpaGetter mpaGetter = new MpaGetter();
         mpaGetter.setId(1);
+        mpaGetter.setName("У фильма нет возрастных ограничений");
 
         film.setMpa(mpaGetter);
 
@@ -67,6 +68,7 @@ public class FilmDbStorageTests {
 
         MpaGetter mpaGetter = new MpaGetter();
         mpaGetter.setId(2);
+        mpaGetter.setName("Детям рекомендуется смотреть фильм с родителями");
 
         film.setMpa(mpaGetter);
 
