@@ -18,10 +18,10 @@ FROM film
 
 3. Выгрузка количества лайков у фильма от большего к меньшему:
 ```
-SELECT f.id AS film_id
+SELECT f.film_id AS film_id
        COUNT(l.user_id) as likes
 FROM film f
-JOIN like l ON l.film_id = f.id
+JOIN like l ON l.film_id = f.film_id
 GROUP BY film_id
 ORDER BY likes DESC
 ```
