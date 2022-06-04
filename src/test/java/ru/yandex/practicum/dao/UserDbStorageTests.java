@@ -60,14 +60,6 @@ public class UserDbStorageTests {
 
     @Test
     public void change() {
-        /*User user = new User();
-        user.setId(3L);
-        user.setName("test1");
-        user.setEmail("test1@test1.ru");
-        user.setLogin("test1");
-        user.setBirthday(LocalDate.of(1999, 01, 01));
-
-        userStorage.create(user);*/
 
         User user1 = new User();
         user1.setId(2);
@@ -103,49 +95,5 @@ public class UserDbStorageTests {
 
         assertThat(optionalUser)
                 .isEmpty();
-    }
-
-    @Test
-    public void addFriend() {
-        userStorage.addFriend(1L, 2L);
-
-        long listFriends = userStorage.getFriendList(1L).get(0).getId();
-
-        assertThat(listFriends).isEqualTo(2L);
-    }
-
-    @Test
-    public void getFriendList() {
-       /* User user = new User();
-        user.setName("test");
-        user.setEmail("test@test.ru");
-        user.setLogin("test");
-        user.setBirthday(LocalDate.of(2000, 01, 01));
-
-        userStorage.create(user);
-
-        User user1 = new User();
-        user1.setName("test1");
-        user1.setEmail("test1@tes1.ru");
-        user1.setLogin("test1");
-        user1.setBirthday(LocalDate.of(2000, 01, 01));
-
-        userStorage.create(user);*/
-
-        userStorage.addFriend(1L, 2L);
-
-        int friendsList = userStorage.getFriendList(1L).size();
-
-        assertThat(friendsList).isEqualTo(1);
-
-    }
-
-    @Test
-    public void deleteFriend() {
-        userStorage.deleteFriend(1L, 2L);
-
-        int friendsList = userStorage.getFriendList(1L).size();
-
-        assertThat(friendsList).isEqualTo(0);
     }
 }

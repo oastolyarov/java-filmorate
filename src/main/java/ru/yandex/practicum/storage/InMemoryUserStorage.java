@@ -62,7 +62,7 @@ public class InMemoryUserStorage implements UserStorage {
 
         User user;
         for (Long l : users.keySet()) {
-            if(users.get(l).getId() == userID) {
+            if (users.get(l).getId() == userID) {
                 user = users.get(l);
                 return Optional.of(user);
             }
@@ -73,23 +73,5 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public void deleteUser(Long id) {
         users.remove(getUserById(id));
-    }
-
-    @Override
-    public void addFriend(Long userId, Long friendId) {
-    }
-
-    @Override
-    public List<User> getFriendList(Long id) {
-        return null;
-    }
-
-    @Override
-    public void deleteFriend(Long userId, Long friendId) {
-    }
-
-    @Override
-    public List<User> commonListOfFriends(Long userId, Long otherUserId) {
-        return null;
     }
 }

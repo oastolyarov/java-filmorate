@@ -71,20 +71,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         films.remove(getFilmById(id));
     }
 
-    @Override
-    public void setLike(Long userId, Long filmId) {
-
-    }
-
-    @Override
-    public List<Film> getPopularFilm(int count) {
-        return null;
-    }
-
-    @Override
-    public void removeLike(Long userId, Long filmId) {
-
-    }
 
     public void filmValidate(Film film) {
         if (film.getName().isBlank() || film.getName() == null) {

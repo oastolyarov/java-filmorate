@@ -92,29 +92,4 @@ public class FilmDbStorageTests {
 
         assertThat(films.size()).isEqualTo(1);
     }
-
-    @Test
-    public void setLike() {
-        filmDbStorage.setLike(1L, 1L);
-
-        Film film = filmDbStorage.getFilmById(1L);
-
-        assertThat(film.getLikes()).isEqualTo(1);
-    }
-
-    @Test
-    public void getPopularFilm() {
-        Film film = filmDbStorage.getPopularFilm(1).get(0);
-
-        assertThat(film.getLikes()).isEqualTo(1);
-    }
-
-    @Test
-    public void removeLike() {
-        filmDbStorage.removeLike(2L, 1L);
-
-        Film film = filmDbStorage.getFilmById(1L);
-
-        assertThat(film.getLikes()).isEqualTo(0);
-    }
 }

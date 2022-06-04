@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import ru.yandex.practicum.exceptions.UserIdNotValidException;
 import ru.yandex.practicum.model.User;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.service.UserDbService;
 import ru.yandex.practicum.storage.UserStorage;
 
 import javax.validation.Valid;
@@ -19,9 +20,13 @@ public class UserController {
 
     UserStorage userStorage;
 
+    UserDbService userDbService;
+
     @Autowired
-    public UserController(@Qualifier("UserDbStorage") UserStorage userStorage) {
+    public UserController(@Qualifier("UserDbStorage") UserStorage userStorage,
+                          UserDbService userDbService) {
         this.userStorage = userStorage;
+        this.userDbService = userDbService;
     }
 
     @GetMapping
@@ -49,7 +54,7 @@ public class UserController {
             throw new UserIdNotValidException(String.format("Пользователь с id %d не существует.", noId));
         }
 
-        userStorage.addFriend(userID, friendID); // добавляет пользователю друга
+        userDbService.addFriend(userID, friendID); // добавляет пользователю друга
     }
 
     @GetMapping("/{id}")
@@ -59,17 +64,17 @@ public class UserController {
 
     @GetMapping("/{id}/friends")
     public List<User> getFriendList(@PathVariable Long id) {
-        return userStorage.getFriendList(id);
+        return userDbService.getFriendList(id);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable("id") Long userID, @PathVariable("friendId") Long friendID) {
-        userStorage.deleteFriend(userID, friendID);
+        userDbService.deleteFriend(userID, friendID);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable("id") long userId, @PathVariable("otherId") long otherUserId) {
-        List<User> commonFriends = userStorage.commonListOfFriends(userId, otherUserId); // получаю массив с id общих друзей
+        List<User> commonFriends = userDbService.commonListOfFriends(userId, otherUserId); // получаю массив с id общих друзей
 
         return commonFriends;
     }

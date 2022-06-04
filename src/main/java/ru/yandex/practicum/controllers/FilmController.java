@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import ru.yandex.practicum.dao.FilmDbStorage;
 import ru.yandex.practicum.model.Film;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.service.FilmDbService;
 import ru.yandex.practicum.storage.FilmStorage;
 import ru.yandex.practicum.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.storage.InMemoryUserStorage;
@@ -20,11 +21,15 @@ public class FilmController {
     FilmStorage filmStorage;
     UserStorage userStorage;
 
+    FilmDbService filmDbService;
+
     @Autowired
     public FilmController(@Qualifier("FilmDbStorage") FilmStorage filmStorage,
-                          @Qualifier("UserDbStorage") UserStorage userStorage) {
+                          @Qualifier("UserDbStorage") UserStorage userStorage,
+                          FilmDbService filmDbService) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.filmDbService = filmDbService;
     }
 
     @GetMapping("/films")
@@ -46,12 +51,12 @@ public class FilmController {
 
     @PutMapping("/films/{id}/like/{userId}")
     public void setLike(@PathVariable("id") long filmId, @PathVariable("userId") long userId) {
-        filmStorage.setLike(userId, filmId);
+        filmDbService.setLike(userId, filmId);
     }
 
     @GetMapping("/films/popular")
     public List<Film> getTopFilms(@RequestParam(defaultValue = "10", required = false) int count) {
-        return filmStorage.getPopularFilm(count);
+        return filmDbService.getPopularFilm(count);
     }
 
     @GetMapping("/films/{id}")
@@ -61,7 +66,7 @@ public class FilmController {
 
     @DeleteMapping("/films/{id}/like/{userId}")
     public void deleteLike(@PathVariable("id") long filmId, @PathVariable("userId") Long userId) {
-        filmStorage.removeLike(userId, filmId);
+        filmDbService.removeLike(userId, filmId);
     }
 
     @DeleteMapping("/films/{id}")
