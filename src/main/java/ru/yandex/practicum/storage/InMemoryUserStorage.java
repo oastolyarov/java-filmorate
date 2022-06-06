@@ -55,19 +55,19 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUserById(Long userID) {
+    public Optional<User> getUserById(Long userID) {
         if (userID < 0) {
             throw new UserIdNotValidException("ID пользователя не может быть отрицательным.");
         }
 
         User user;
         for (Long l : users.keySet()) {
-            if(users.get(l).getId() == userID) {
+            if (users.get(l).getId() == userID) {
                 user = users.get(l);
-                return user;
+                return Optional.of(user);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override

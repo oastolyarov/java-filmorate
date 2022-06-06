@@ -2,7 +2,7 @@ package ru.yandex.practicum.storage;
 
 import ru.yandex.practicum.model.User;
 
-import java.util.Collection;
+import java.util.*;
 
 public interface UserStorage {
 
@@ -12,7 +12,7 @@ public interface UserStorage {
 
     public User change(User user);
 
-    public User getUserById(Long userID);
+    public Optional<User> getUserById(Long userID);
 
     public void deleteUser(Long id);
 }
